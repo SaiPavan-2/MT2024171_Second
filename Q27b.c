@@ -1,5 +1,5 @@
 /**
-Name:Q27.c
+Name:Q27b.c
 Author:Pavan
 Description:Program to receive messages from the message queue.
 a. with 0 as a flag

@@ -6,38 +6,24 @@ size of a pipe (circular buffer).
 Date: 20th September 2024
 **/
 #include <stdio.h>
-#include <sys/resource.h>
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <fcntl.h>
 #include <unistd.h>
+#include <limits.h>
 
 int main() {
-    struct rlimit rlim;
-    int pipefd[2];
-    long pipe_size;
-    if (getrlimit(RLIMIT_NOFILE, &rlim) == 0) {
-        printf("Maximum number of files that can be opened: %ld\n", rlim.rlim_cur);
+    printf("Max open files: %ld\n", sysconf(_SC_OPEN_MAX));
+
+    long pipe_size = fpathconf(STDOUT_FILENO, _PC_PIPE_BUF);
+    if (pipe_size != -1) {
+        printf("Pipe size: %ld bytes\n", pipe_size);
     } else {
-        perror("getrlimit");
-    }
-    if (pipe(pipefd) == -1) {
-        perror("pipe");
-        return 1;
-    }
-    pipe_size = fcntl(pipefd[0], F_GETPIPE_SZ);
-    if (pipe_size == -1) {
-        perror("fcntl");
-        close(pipefd[0]);
-        close(pipefd[1]);
-        return 1;
+        perror("fpathconf");
     }
 
-    printf("Size of the pipe buffer: %ld bytes\n", pipe_size);
-    close(pipefd[0]);
-    close(pipefd[1]);
     return 0;
 }
+
 /**
 Output:
+Max open files: 1024
+Pipe size: 4096 bytes
 **/
