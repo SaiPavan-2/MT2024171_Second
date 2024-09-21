@@ -1,5 +1,5 @@
 /**
-Name:Q2.c
+Name:Q3.c
 Author:Pavan
 Description:Program to set (any one) system resource limit using  setrlimit system call.
 Date:12th September 2024

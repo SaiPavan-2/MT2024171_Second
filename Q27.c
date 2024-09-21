@@ -11,27 +11,28 @@ Date:20th September 2024
 #include <sys/ipc.h>
 #include <sys/msg.h>
 
-struct msg_data {
+struct msg_buffer {
     long msg_type;
     char msg_text[100];
-} msg;
+} message;
 
 int main() {
-    key_t queue_key;
-    int queue_id;
+    key_t key;
+    int msgid;
 
-    queue_key = ftok("msgqueuefile", 65);
-    queue_id = msgget(queue_key, 0666 | IPC_CREAT);
+    key = ftok("progfile", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
 
-    if (msgrcv(queue_id, &msg, sizeof(msg.msg_text), 1, 0) == -1) {
-        perror("msgrcv failed");
-        exit(EXIT_FAILURE);
-    }
+    msgrcv(msgid, &message, sizeof(message.msg_text), 0, 0);
 
-    printf("Message received: %s", msg.msg_text);
+    printf("Received message: %s\n", message.msg_text);
+
+    msgctl(msgid, IPC_RMID, NULL);
 
     return 0;
 }
+
 /**
 Output:
+Received message: Hello from sender!
 **/

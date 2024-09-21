@@ -10,28 +10,35 @@ Date:20th September 2024
 #include <stdlib.h>
 #include <sys/ipc.h>
 #include <sys/msg.h>
+#include <errno.h>
 
-struct msg_data {
+struct msg_buffer {
     long msg_type;
     char msg_text[100];
-} msg;
+} message;
 
 int main() {
-    key_t queue_key;
-    int queue_id;
+    key_t key;
+    int msgid;
 
-    queue_key = ftok("msgqueuefile", 65);
-    queue_id = msgget(queue_key, 0666 | IPC_CREAT);
+    key = ftok("progfile", 65);
+    msgid = msgget(key, 0666 | IPC_CREAT);
 
-    if (msgrcv(queue_id, &msg, sizeof(msg.msg_text), 0, IPC_NOWAIT) == -1) {
-        perror("msgrcv failed");
-        exit(EXIT_FAILURE);
+    if (msgrcv(msgid, &message, sizeof(message.msg_text), 0, IPC_NOWAIT) == -1) {
+        if (errno == ENOMSG) {
+            printf("No message available.\n");
+        } else {
+            perror("msgrcv");
+        }
+    } else {
+        printf("Received message: %s\n", message.msg_text);
     }
 
-    printf("Message received: %s", msg.msg_text);
+    msgctl(msgid, IPC_RMID, NULL);
 
     return 0;
 }
+
 /**Output:
-msgrcv failed: No message of desired type
+No message available.
 **/

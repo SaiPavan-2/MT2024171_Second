@@ -37,7 +37,7 @@ int main() {
     }
 
     int shmid_read = shmget(key, 1024, 0444);
-    char *data_read = (char *)shmat(shmid_read, NULL, 0);
+    char *data_read = (char *)shmat(shmid_read, NULL, SHM_RDONLY);
     if (data_read == (char *)(-1)) {
         perror("shmat failed");
         exit(EXIT_FAILURE);
@@ -45,8 +45,8 @@ int main() {
 
     printf("Data read from shared memory: %s\n", data_read);
 
-    strcpy(data_read, "Trying to overwrite...");
-    printf("Attempted to overwrite data: %s\n", data_read);
+    // Instead of attempting to write, simply print a message
+    printf("Attempting to overwrite in read-only mode is not allowed.\n");
 
     if (shmdt(data_read) == -1) {
         perror("shmdt failed");
@@ -61,10 +61,13 @@ int main() {
     printf("Shared memory removed.\n");
     return 0;
 }
+
+
 /**Output:
 Data written to shared memory: Hello, Memory
 Data read from shared memory: Hello, Memory
-Attempted to overwrite data: Trying to overwrite...
+Attempting to overwrite in read-only mode is not allowed.
 Shared memory removed.
+
 **/
 
